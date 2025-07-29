@@ -27,18 +27,16 @@ type Props = {
 };
 
 export default function CardTable({ shuffledCards }: Props) {
-  const [hands, setHands] = useState(shuffledCards);
-  const playerHands = hands.filter((hand) => !hand.isBot);
+  const [playerHands, setPlayerHands] = useState(
+    shuffledCards.filter((hand) => !hand.isBot)[0]
+  );
+  const botHands = shuffledCards.filter((hand) => hand.isBot);
   const [selected, setSelected] = useState<TCard[]>([]);
   const [text, setText] = useState("Wala pang bitaw!");
   const [highestCard, setHighestCard] = useState<TCard | null>(null);
 
-  // const sortHands = (sortFn: (cards: TCard[]) => TCard[]) => {
-  //   setHands((prevHands) => prevHands.map((hand) => sortFn(hand.cards)));
-  // };
-
   const createNewGame = () => {
-    setHands(getFreshCards());
+    setPlayerHands(getFreshCards().filter((hand) => !hand.isBot)[0]);
     setSelected([]);
   };
 
@@ -62,6 +60,23 @@ export default function CardTable({ shuffledCards }: Props) {
             card={card}
             isSelected={selected.includes(card)}
             onSelect={() => onSelect(card)}
+            isBot={hand.isBot}
+          />
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderBotHand = (hand: FreshCard) => (
+    <div key={hand.player}>
+      <div className="grid grid-cols-13 gap-8 rotate-90">
+        {hand.cards.map((card) => (
+          <Card
+            key={card.number.display + card.suit.symbol}
+            card={card}
+            isSelected={selected.includes(card)}
+            onSelect={() => onSelect(card)}
+            isBot={hand.isBot}
           />
         ))}
       </div>
@@ -128,24 +143,29 @@ export default function CardTable({ shuffledCards }: Props) {
   };
 
   return (
-    <div>
-      <div className="flex gap-4 items-center mb-8">
-        <Button onClick={createNewGame}>New Game</Button>
-        <Button onClick={play}>Play</Button>
-        {/* <Button onClick={() => sortHands(sortCardsByNumber)}>
-          Sort by Number
-        </Button>
-        <Button onClick={() => sortHands(sortCardsBySuit)}>Sort by Suit</Button> */}
-      </div>
+    <div className="flex-1">
+      <div className="flex flex-col h-full p-8">
+        <div className="w-1/2 mx-auto">
+          {[botHands[0]].map(renderPlayerHand)}
+        </div>
 
-      <div>
-        <p className="text-center text-5xl p-8">{text}</p>
-        {highestCard && (
-          <p className="text-center text-5xl p-8">{`${highestCard?.number.word} na ${highestCard?.suit.name}`}</p>
-        )}
-      </div>
+        <div className="grid grid-cols-[120px_1fr_120px] gap-4 flex-1 ">
+          <div>{[botHands[1]].map(renderBotHand)}</div>
 
-      {hands.filter((hand) => !hand.isBot).map(renderPlayerHand)}
+          <div>
+            <p>here</p>
+          </div>
+
+          <div>{[botHands[2]].map(renderBotHand)}</div>
+        </div>
+
+        <div className="flex gap-4 items-center mb-8 justify-center">
+          <Button onClick={createNewGame}>New Game</Button>
+          <Button onClick={play}>Play</Button>
+        </div>
+
+        <div className="w-1/2 mx-auto">{renderPlayerHand(playerHands)}</div>
+      </div>
     </div>
   );
 }

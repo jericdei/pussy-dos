@@ -5,15 +5,27 @@ export default function Card({
   card,
   isSelected,
   onSelect,
+  isBot,
 }: {
   card: CardType;
   isSelected: boolean;
+  isBot: boolean;
   onSelect: () => void;
 }) {
   const colorClass = cn({
     "text-red-500": card.suit.color === "red",
     "text-black": card.suit.color === "black",
   });
+
+  if (isBot) {
+    return (
+      <div
+        className={cn(
+          "w-28 relative h-32 p-2 rounded-2xl bg-red-500 select-none border-white border-8 cursor-pointer"
+        )}
+      ></div>
+    );
+  }
 
   return (
     <div
